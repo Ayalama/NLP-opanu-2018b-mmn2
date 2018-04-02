@@ -2,10 +2,12 @@ import datasets.load_data_sets as ld
 import numpy as np
 import pandas as pd
 
+gold_file=r"C:\Users\aymann\PycharmProjects\maman_12_NLP\datasets\heb-pos.gold"
+train_file=r"C:\Users\aymann\PycharmProjects\maman_12_NLP\datasets\heb-pos.train"
 
-def read_train_gold():
-    gold_set = ld.load_gold_train(r"C:\Users\aymann\PycharmProjects\maman_12_NLP\datasets\heb-pos.gold")
-    train_set = ld.load_gold_train(r"C:\Users\aymann\PycharmProjects\maman_12_NLP\datasets\heb-pos.train")
+def read_train_gold(gold,train):
+    gold_set = ld.load_gold_train(gold)
+    train_set = ld.load_gold_train(train)
     return gold_set, train_set
 
 
@@ -65,9 +67,8 @@ def print_stats(dataframe):
                                                       seg_tag_typ=unigrams_types,
                                                       amb_idx=index_of_ambiguity_s)
 
-
-if __name__ == '__main__':  # This is needed to allow multiprocessing in windows
-    gold, train = read_train_gold()
+def gold_train_stats(gold=gold_file,train=train_file):
+    gold, train = read_train_gold(gold,train)
     print "Gold corpus statistics: \n"
     print_stats(gold)
 
@@ -76,3 +77,7 @@ if __name__ == '__main__':  # This is needed to allow multiprocessing in windows
 
     print "Entire corpus statistics: \n"
     print_stats(pd.concat([train, gold],ignore_index=True))
+
+
+if __name__ == '__main__':  # This is needed to allow multiprocessing in windows
+    gold_train_stats()
