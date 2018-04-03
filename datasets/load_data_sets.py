@@ -6,7 +6,7 @@ import os
 # structure of file should be seg<tab>tag<eol>.
 # sentences are separated with an empty line
 def load_gold_train(gold_or_train_file):
-    load_data(gold_or_train_file, is_tagged=True)
+    return load_data(gold_or_train_file, is_tagged=True)
 
 
 # load heb-pos.gold file and return is in a vectorized format.
