@@ -1,15 +1,17 @@
 import taggers.basic_tagger as bstag
+import taggers.first_ord_tagger as hmm
 import evaluation.evaluation_measures as eval
 import datasets.load_data_sets as ld
 
 gold_file = r'C:\Users\aymann\PycharmProjects\maman_12_NLP\datasets\heb-pos.gold'
-train_file = r'C:\Users\aymann\PycharmProjects\maman_12_NLP\datasets\heb-pos.train'
+train_file = r'C:\Users\aymann\PycharmProjects\maman_12_NLP\datasets\heb-pos-small.train'
 test_file = r'C:\Users\aymann\PycharmProjects\maman_12_NLP\datasets\heb-pos.test'
 
 
 def test_basic_tagger(with_eval=False):
     tagbasic = bstag.BasicTagger()
     tagbasic.train(train_file)
+    df=None
     if with_eval:
         tagbasic.evaluate(gold_file=gold_file,test_file=test_file,train_file=train_file)
     else:
@@ -37,7 +39,8 @@ def test_eval():
 
 
 if __name__ == '__main__':  # This is needed to allow multiprocessing in windows
-    #TODO- check evaluation file output!!
-    test_basic_tagger(with_eval=True)
+    hmmtag=hmm.HMMTagger()
+    hmmtag.train(train_file)
+    rows, columns, lex=hmmtag.create_lexical()
 
     print ""

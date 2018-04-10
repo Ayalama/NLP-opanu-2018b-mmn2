@@ -7,13 +7,14 @@ import scipy.stats
 # train_file = "heb-pod.train"
 class BasicTagger(object):
     def __init__(self):
+        self.is_trained = False
         pass
 
     def train(self, train_file):
         self.train_data = ld.load_gold_train(train_file)
         self.train_seg_common = self.train_data.groupby('SEG')['TAG'].agg(
             lambda x: scipy.stats.mode(x)[0]).reset_index()
-        self.is_trained=True
+        self.is_trained = True
         return
 
     # def get_common_tag(self, segment):
@@ -40,11 +41,11 @@ class BasicTagger(object):
         return sen_df
 
     def evaluate(self, gold_file, test_file, train_file):
-        if self.is_trained==False:
+        if self.is_trained == False:
             self.train(train_file)
 
         gold_df = ld.load_gold_train(gold_file)
         test_tagged_df = self.tag_sentances_file(test_file)
-        eval.output_eval('basic_tagger_eval.txt', model_name="basic", test_file=test_file, gold_file=gold_file,
+        eval.output_eval('evaluation/basic_tagger_eval.txt', model_name="basic", test_file=test_file,
+                         gold_file=gold_file,
                          gold_df=gold_df, test_tagged_df=test_tagged_df)
-        # TODO- validate output
