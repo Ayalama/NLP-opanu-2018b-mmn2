@@ -37,6 +37,7 @@ def sentence_acc_tst_corpuse(gold_df, test_tagged_df):
 
 
 def get_correct_tags_cnt(gold_df, test_tagged_df):
+    assert len(gold_df) == len(test_tagged_df)
     df = pd.merge(gold_df, test_tagged_df, how='inner', on=['SEG', 'SEN_NUM', 'WORD_NUM'])
     df['CORR_YN'] = np.where(df['TAG'] == df['AUTO_TAG'], 1, 0)
 
@@ -77,6 +78,8 @@ def output_eval(outputpath, model_name, test_file, gold_file, gold_df, test_tagg
     eval_file.writelines('#######################################################\n')
     eval_file.writelines('# sent-num word-accuracy sent-accuracy\n')
     eval_file.writelines('#######################################################\n')
+
+    test_tagged_df.rename(columns={'TAG':'AUTO_TAG'},inplace=True)
 
     accdf = pd.merge(word_acc_for_sen(gold_df, test_tagged_df), sentence_acc(gold_df, test_tagged_df), how='inner',
                      on='SEN_NUM')

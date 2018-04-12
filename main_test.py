@@ -5,7 +5,7 @@ import datasets.load_data_sets as ld
 
 gold_file = r'C:\Users\aymann\PycharmProjects\maman_12_NLP\datasets\heb-pos.gold'
 train_file = r'C:\Users\aymann\PycharmProjects\maman_12_NLP\datasets\heb-pos-small.train'
-test_file = r'C:\Users\aymann\PycharmProjects\maman_12_NLP\datasets\heb-pos.test'
+test_file = r'C:\Users\aymann\PycharmProjects\maman_12_NLP\datasets\heb-pos-small.test'
 
 
 def test_basic_tagger(with_eval=False):
@@ -16,7 +16,7 @@ def test_basic_tagger(with_eval=False):
         tagbasic.evaluate(gold_file=gold_file,test_file=test_file,train_file=train_file)
     else:
         print "common value for tag: " + tagbasic.get_common_tag("CIBWR")
-        df = tagbasic.tag_sentances_file(test_file)
+        df = tagbasic.decode(test_file)
     return df
 
 
@@ -39,8 +39,8 @@ def test_eval():
 
 
 if __name__ == '__main__':  # This is needed to allow multiprocessing in windows
-    hmmtag=hmm.HMMTagger()
-    hmmtag.train(train_file)
-    rows, columns, lex=hmmtag.create_lexical()
-
-    print ""
+    test_basic_tagger()
+    # hmmtag=hmm.HMMTagger()
+    # hmmtag.train(train_file) # set train_data and lexical_data
+    # df_to_decode=hmmtag.decode(test_file)
+    # print ""
