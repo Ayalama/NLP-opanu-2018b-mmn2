@@ -16,17 +16,16 @@ parser.add_argument('--smoothing', type=str, default='n',
 
 args = parser.parse_args()
 
-args.train_file='C:\\Users\\aymann\\PycharmProjects\\maman_12_NLP\\datasets\\heb-pos.train'
-print "executing training phase for NLP model: model={model}, training file={training_file}, smoothing={smoothing}".format(model=args.model,training_file=args.train_file,smoothing=args.smoothing)
-
-if args.model=='baseline':
-    tagger = bstag.BasicTagger()
-if args.model=='bi-gram':
-    tagger== HMMtag.HMMTagger()
-
-if os.path.isfile(args.train_file):
-    tagger.train(args.train_file,train_file_out=True)
-else:
+if not os.path.isfile(args.train_file):
     raise Exception('No such file {}'.format(args.train_file))
 
+# args.train_file='C:\\Users\\aymann\\PycharmProjects\\maman_12_NLP\\datasets\\heb-pos.train'
+print "executing training phase for NLP model: model={model}, training file={training_file}, smoothing={smoothing}".format(
+    model=args.model, training_file=args.train_file, smoothing=args.smoothing)
 
+if args.model == 'baseline':
+    tagger = bstag.BasicTagger()
+    tagger.train(args.train_file, train_file_out=True)
+if args.model == 'bi-gram':
+    tagger = HMMtag.HMMTagger()
+    tagger.train(args.train_file, train_file_out=True)

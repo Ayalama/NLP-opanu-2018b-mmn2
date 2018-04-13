@@ -83,7 +83,7 @@ def output_eval(outputpath, model_name, test_file, gold_file, gold_df, test_tagg
 
     accdf = pd.merge(word_acc_for_sen(gold_df, test_tagged_df), sentence_acc(gold_df, test_tagged_df), how='inner',
                      on='SEN_NUM')
-    accdf.to_string(eval_file, index_names=False, header=False,index= False)
+    accdf.to_string(eval_file, index_names=False, header=False,index= False,col_space=0)
     eval_file.writelines('\n')
     eval_file.writelines('\n')
 
