@@ -43,6 +43,6 @@ if __name__ == '__main__':  # This is needed to allow multiprocessing in windows
     hmmtag=hmm.HMMTagger()
     # hmmtag.train(train_file) # set train_data and lexical_data
     # df_to_decode=hmmtag.decode(test_file)
-    gram_file='C:\\Users\\aymann\\PycharmProjects\\maman_12_NLP\\scripts\\hmm_train_test.gram'
-    hmmtag.load_gram_from_file(gram_file)
+    train='C:\\Users\\aymann\\PycharmProjects\\maman_12_NLP\\datasets\\heb-pos-small.train'
+    hmmtag.train(train_file=train,train_file_out=False)
     print ""

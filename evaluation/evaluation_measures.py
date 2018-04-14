@@ -21,6 +21,7 @@ def sentence_acc(gold_df, test_tagged_df):
 
 
 # proportion of correct tags in the corpus
+# test_tagged_df should have 'AUTO_TAG' column to compare with 'TAG' column of gold_df
 def word_acc_tst_corpuse(gold_df, test_tagged_df):
     df = get_correct_tags_cnt(gold_df, test_tagged_df)
     aj_df = word_acc_for_sen(gold_df, test_tagged_df)
@@ -37,8 +38,10 @@ def sentence_acc_tst_corpuse(gold_df, test_tagged_df):
 
 
 def get_correct_tags_cnt(gold_df, test_tagged_df):
-    assert len(gold_df) == len(test_tagged_df)
-    df = pd.merge(gold_df, test_tagged_df, how='inner', on=['SEG', 'SEN_NUM', 'WORD_NUM'])
+    # assert len(gold_df) == len(test_tagged_df)
+    df = pd.merge(gold_df, test_tagged_df, how='inner', on=['SEN_NUM', 'WORD_NUM'])
+    df = df[['SEG_x','TAG','SEN_NUM','WORD_NUM','AUTO_TAG']]
+    df = df.rename(columns={'SEG_x': 'SEG'})
     df['CORR_YN'] = np.where(df['TAG'] == df['AUTO_TAG'], 1, 0)
 
     df_nj = df.groupby('SEN_NUM', as_index=False)['WORD_NUM'].max()  # get nj for each sentence
@@ -47,7 +50,7 @@ def get_correct_tags_cnt(gold_df, test_tagged_df):
     return df_eval_auto_tag
 
 
-def get_confusion_metric(gold_df, test_tagged_df):
+def get_confusion_metrix(gold_df, test_tagged_df):
     assert len(gold_df) == len(test_tagged_df)
     df = pd.merge(gold_df, test_tagged_df, how='inner', on=['SEG', 'SEN_NUM', 'WORD_NUM'])
     labales = pd.unique(df['TAG'].append(df['AUTO_TAG'], ignore_index=True).values)
@@ -60,13 +63,12 @@ def get_confusion_metric(gold_df, test_tagged_df):
     for ix in xrange(number_cls):  # current class
         for iy in xrange(number_cls):
             cell_mtx = len(
-                test_tagged_df[test_tagged_df['AUTO_TAG'] == labales[ix] & test_tagged_df['TAG'] == labales[iy]])
+                test_tagged_df[np.where((df['AUTO_TAG'] == labales[ix]) & (df['TAG'] == labales[iy]), 1, 0) == 1])
             confusion[ix, iy] = cell_mtx
-    return confusion
-    return df_confusion
+    return labales,confusion
 
 
-def output_eval(outputpath, model_name, test_file, gold_file, gold_df, test_tagged_df, smoothing=False):
+def output_eval(outputpath, model_name, test_file, gold_file, gold_df, test_tagged_df, smoothing='n'):
     eval_file = open(outputpath, "wb")
 
     eval_file.writelines("# Model: : %s \n" % model_name)

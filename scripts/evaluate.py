@@ -35,5 +35,5 @@ if args.model == 'baseline':
     tagger.evaluate(gold_file=args.gold_file, test_file=args.model_tagged)  # input: test file and common tags file
 
 if args.model == 'bi-gram':
-    tagger == HMMtag.HMMTagger()
-    tagger.evaluate(gold_file=args.gold_file, test_file=args.model_tagged)  # input: test file ,*.lex file, *.gram file
+    tagger = HMMtag.HMMTagger()
+    tagger.evaluate(gold_file=args.gold_file, test_file=args.model_tagged, smoothing=args.smoothing,output_path='C:\\Users\\aymann\\PycharmProjects\\maman_12_NLP\\tests\\hmm_tagger_run1\\hmm_tagger.eval')  # input: test file ,*.lex file, *.gram file

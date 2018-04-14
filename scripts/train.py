@@ -1,6 +1,7 @@
 import argparse
 import taggers.basic_tagger as bstag
 import taggers.first_ord_tagger as HMMtag
+import taggers.first_ord_tagger_logprobs as HMMTagger_logprobs
 import os.path
 
 parser = argparse.ArgumentParser()
@@ -28,4 +29,13 @@ if args.model == 'baseline':
     tagger.train(args.train_file, train_file_out=True)
 if args.model == 'bi-gram':
     tagger = HMMtag.HMMTagger()
-    tagger.train(args.train_file, train_file_out=True)
+    lex_path_out = 'C:\\Users\\aymann\\PycharmProjects\\maman_12_NLP\\tests\\hmm_tagger_run2\\hmm_tagger.lex'
+    gram_path_out = 'C:\\Users\\aymann\\PycharmProjects\\maman_12_NLP\\tests\\hmm_tagger_run2\\hmm_tagger_prev.gram'
+    tagger.train(args.train_file, train_file_out=True,lex_path_out=lex_path_out,gram_path_out=gram_path_out)
+
+
+if args.model == 'bi-gram-logprob':
+    tagger=HMMTagger_logprobs.HMMTagger_logprobs()
+    lex_path_out = 'C:\\Users\\aymann\\PycharmProjects\\maman_12_NLP\\tests\\hmm_tagger_run3\\hmm_tagger.lex'
+    gram_path_out = 'C:\\Users\\aymann\\PycharmProjects\\maman_12_NLP\\tests\\hmm_tagger_run3\\hmm_tagger_prev.gram'
+    tagger.train(args.train_file, train_file_out=True,lex_path_out=lex_path_out,gram_path_out=gram_path_out)

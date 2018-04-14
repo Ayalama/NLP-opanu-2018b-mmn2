@@ -1,6 +1,7 @@
 import argparse
 import taggers.basic_tagger as bstag
 import taggers.first_ord_tagger as HMMtag
+import taggers.first_ord_tagger_logprobs as HMMtag_logprob
 import os.path
 
 parser = argparse.ArgumentParser()
@@ -39,4 +40,10 @@ if args.model == 'baseline':
 if args.model == 'bi-gram':
     tagger = HMMtag.HMMTagger()
     tagger.decode(sen_file=args.test_file, lex_file=args.param_file1,
-                  gram_file=args.param_file2)  # input: test file ,*.lex file, *.gram file
+                  gram_file=args.param_file2, tagged_path='C:\\Users\\aymann\\PycharmProjects\\maman_12_NLP\\tests\\hmm_tagger.tagged')  # input: test file ,*.lex file, *.gram file
+
+if args.model == 'bi-gram-logprob':
+    tagger = HMMtag_logprob.HMMTagger_logprobs()
+    tagger.decode(sen_file=args.test_file, lex_file=args.param_file1,
+                  gram_file=args.param_file2,
+                  tagged_path='C:\\Users\\aymann\\PycharmProjects\\maman_12_NLP\\tests\\hmm_tagger_run3\\hmm_tagger.tagged')
