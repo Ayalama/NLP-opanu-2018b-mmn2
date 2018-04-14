@@ -46,4 +46,4 @@ if args.model == 'bi-gram-logprob':
     tagger = HMMtag_logprob.HMMTagger_logprobs()
     tagger.decode(sen_file=args.test_file, lex_file=args.param_file1,
                   gram_file=args.param_file2,
-                  tagged_path='C:\\Users\\aymann\\PycharmProjects\\maman_12_NLP\\tests\\hmm_tagger_run3\\hmm_tagger.tagged')
+                  tagged_path='C:\\Users\\aymann\\PycharmProjects\\maman_12_NLP\\tests\\hmm_tagger_run4\\hmm_tagger.tagged')

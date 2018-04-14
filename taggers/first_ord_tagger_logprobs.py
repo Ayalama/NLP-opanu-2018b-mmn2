@@ -188,20 +188,11 @@ class HMMTagger_logprobs(object):
             return True
 
 
-
-    # def evaluate(self, gold_file, test_file, train_file):
-    #     if self.train_data is None:
-    #         self.train(train_file)
-    #
-    #     gold_df = ld.load_gold_train(gold_file)
-    #     test_tagged_df = self.decode(test_file)
-    #     eval.output_eval('evaluation/hmm_tagger_eval.txt', model_name="HMM", test_file=test_file, gold_file=gold_file,
-    #                      gold_df=gold_df, test_tagged_df=test_tagged_df)
-
-    def evaluate(self, gold_file, test_file, smoothing='n'):
+    def evaluate(self, gold_file, test_file, smoothing='n',output_path=None):
         gold_df = ld.load_gold_train(gold_file)
         test_tagged_df = ld.load_gold_train(test_file)
-        output_path = os.getcwd() + '\\hmm_tagger.eval'
+        if output_path is None:
+            output_path = os.getcwd() + '\\hmm_tagger.eval'
 
         eval.output_eval(output_path, model_name="bi-gram/hmm", test_file=test_file,
                          gold_file=gold_file,
@@ -334,10 +325,12 @@ class HMMTagger_logprobs(object):
             # df_s0_s['step_idx']=step_idx
             # df_v = df_v.append(df_s0_s[['step_idx', 'state', 'val']])
             # df_b = df_b.append(df_s0_s[['step_idx', 'state', 'prev_state']])
+
             v_i_s = df_s0_s.PROB.min()
             cur_state_name = df_s0_s.loc[[df_s0_s.PROB.idxmin()]]['TAG_i'].values[0]
             df_v = df_v.append({'step_idx': step_idx, 'state': cur_state_name, 'val': v_i_s}, ignore_index=True)
             df_b = df_b.append({'step_idx': step_idx, 'state': cur_state_name, 'prev_state': 'START'}, ignore_index=True)
+
             return df_v, df_b
 
         # w1 is known: get all tags that has prov>0 to be as a first state (after START) and with w1
@@ -458,6 +451,7 @@ class HMMTagger_logprobs(object):
 
     def smooth_unknown_word(self,df_prevs_s,prev_df_v,step_idx,df_v,df_b):
         # df_prevs_s['step_idx'] = step_idx
+        # df_prevs_s['val_new'] = df_prevs_s['val'] + df_prevs_s['PROB']
         # df_prevs_s = df_prevs_s[['step_idx', 'TAG_i-1', 'TAG_i', 'val_new']]
         # df_prevs_s.rename(columns={'TAG_i-1': 'prev_state', 'TAG_i': 'state', 'val_new': 'val'}, inplace=True)
         # df_v = df_v.append(df_prevs_s[['step_idx', 'state', 'val']])

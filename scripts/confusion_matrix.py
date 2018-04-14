@@ -1,13 +1,10 @@
 import argparse
-import pandas as pd
-import taggers.basic_tagger as bstag
-import taggers.first_ord_tagger as HMMtag
-import os.path
 import os
+
+import pandas as pd
+
 import datasets.load_data_sets as ld
 import evaluation.evaluation_measures as eval
-import matplotlib.pyplot as plt
-import numpy as np
 
 parser = argparse.ArgumentParser()
 
@@ -36,31 +33,28 @@ print "building confusion matrix for NLP model: model={model}, model test_file={
     model=args.model, test_file=args.test_file, gold_file=args.gold_file,
     smoothing=args.smoothing)
 
-confusion_out_path = "C:\\Users\\aymann\\PycharmProjects\\maman_12_NLP\\tests\\{}_model.confusion".format(args.model)
-labals_out_path = "C:\\Users\\aymann\\PycharmProjects\\maman_12_NLP\\tests\\{}_model.labalidx".format(args.model)
+confusion_out_path = "C:\\Users\\aymann\\PycharmProjects\\maman_12_NLP\\tests\\confusion_matrix\\{}_model.confusion".format(args.model)
+labals_out_path = "C:\\Users\\aymann\\PycharmProjects\\maman_12_NLP\\tests\\confusion_matrix\\{}_model.labalidx".format(args.model)
 
 test_df = ld.load_gold_train(args.test_file)
 test_df.rename(columns={'TAG': 'AUTO_TAG'}, inplace=True)
 gold_df = ld.load_gold_train(args.gold_file)
 
-labels, confusion = eval.get_confusion_metrix(gold_df=gold_df, test_tagged_df=test_df)
+labels, confusion, confusion_df = eval.get_confusion_metrix(gold_df=gold_df, test_tagged_df=test_df)
 
 pd.DataFrame(confusion).to_csv(confusion_out_path, sep='\t')
 pd.DataFrame(labels).to_csv(labals_out_path, sep='\t', index=True,header=False)
+print "full confusion metrix at {confusion_out_path}, with labels index at {labals_out_path}".format(
+    confusion_out_path=confusion_out_path, labals_out_path=labals_out_path)
 
-number_cls = len(labels)
-max_value = 0
-max_arg_test = ''
-max_arg_gold = ''
+confusion_df=confusion_df.sort_values(by='CNT',ascending=False)
+print "top 3 mistakes in confusion matrix:"
+print confusion_df[0:3]
 
-for ix in xrange(number_cls):  # current class
-    for iy in xrange(number_cls):
-        if ix <> iy and confusion[ix][iy] > max_value:
-            max_value = confusion[ix][iy]
-            max_arg_test = labels[ix]
-            max_arg_gold = labels[iy]
+max_arg_gold = confusion_df[0:1].values[0][0]
+max_arg_test = confusion_df[0:1].values[0][1]
+max_value = int(confusion_df[0:1].values[0][2])
+
 print "max confusion in model: model tagged {max_arg_test} where gold tag is {max_arg_gold} {max_value} times!".format(
     max_arg_test=max_arg_test, max_arg_gold=max_arg_gold, max_value=max_value)
 
-print "full confusion metrix at {confusion_out_path}, with labels index at {labals_out_path}".format(
-    confusion_out_path=confusion_out_path, labals_out_path=labals_out_path)

@@ -54,6 +54,10 @@ def get_confusion_metrix(gold_df, test_tagged_df):
     assert len(gold_df) == len(test_tagged_df)
     df = pd.merge(gold_df, test_tagged_df, how='inner', on=['SEG', 'SEN_NUM', 'WORD_NUM'])
     labales = pd.unique(df['TAG'].append(df['AUTO_TAG'], ignore_index=True).values)
+    df['CNT']=0
+    confusion_df=df.groupby(['TAG','AUTO_TAG'], as_index=False)['CNT'].count()
+    confusion_df=confusion_df[np.where(confusion_df['TAG']<>confusion_df['AUTO_TAG'], 1,0) == 1]
+
     number_cls = len(labales)
     logging.debug("Number of classes assumed to be {}".format(number_cls))
 
@@ -65,7 +69,7 @@ def get_confusion_metrix(gold_df, test_tagged_df):
             cell_mtx = len(
                 test_tagged_df[np.where((df['AUTO_TAG'] == labales[ix]) & (df['TAG'] == labales[iy]), 1, 0) == 1])
             confusion[ix, iy] = cell_mtx
-    return labales,confusion
+    return labales,confusion,confusion_df
 
 
 def output_eval(outputpath, model_name, test_file, gold_file, gold_df, test_tagged_df, smoothing='n'):

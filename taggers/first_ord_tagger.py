@@ -33,7 +33,6 @@ class HMMTagger(object):
             self.output_lex(lex_path_out)
             print "outputting param train files: *.gram..."
             self.output_gram(gram_path_out)
-            # (os.getcwd() + '\\tests\\basic_tagger_params.train', sep='\t', index=False)
         return
 
     def set_states(self):
@@ -139,7 +138,6 @@ class HMMTagger(object):
 
     # input- untagged sentence file (formatted as test
     # output- tagged sentence file/DF according to training. formatted as gold file
-    # TODO- check correctness
     # def decode(self, sen_file, lex_file=None, gram_file=None, tagged_path=None):
     #     df_to_decode = ld.load_data(sen_file, is_tagged=False)
     #     df_to_decode = self.set_EOS(df_to_decode)

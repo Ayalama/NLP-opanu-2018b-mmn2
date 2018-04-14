@@ -42,6 +42,7 @@ class BasicTagger(object):
         sen_df = ld.load_data(sen_file_path,
                               is_tagged=False)  # return data frame with columns ['SEG', 'SEN_NUM', 'WORD_NUM']
         sen_df['AUTO_TAG'] = 'NNP'
+
         if param_file is not None:
             self.load_train_seg_common(param_file)
 

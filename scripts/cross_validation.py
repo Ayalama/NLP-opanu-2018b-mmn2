@@ -1,12 +1,14 @@
 import argparse
-import taggers.basic_tagger as bstag
-import taggers.first_ord_tagger as HMMtag
-import os.path
 import os
-import datasets.load_data_sets as ld
-import evaluation.evaluation_measures as eval
+
 import matplotlib.pyplot as plt
 import numpy as np
+
+import datasets.load_data_sets as ld
+import evaluation.evaluation_measures as eval
+import taggers.basic_tagger as bstag
+# import taggers.first_ord_tagger as HMMtag
+import taggers.first_ord_tagger_logprobs as HMMtag
 
 parser = argparse.ArgumentParser()
 
@@ -54,32 +56,41 @@ if args.model == 'baseline':
         out_tagged_file=test_i.TAGGED_PATH_TBD
         param_path=train_file.replace('.train','.trainout')
 
-        tagger.train(train_file=train_file,train_file_out=True,param_path=param_path)
+        tagger.train(train_file=train_file,train_file_out=False,param_path=param_path)
         tagger.decode(sen_file_path=args.test_file,tagged_path=out_tagged_file)
+
         test_tagged_df = ld.load_gold_train(out_tagged_file)
         test_tagged_df.rename(columns={'TAG':'AUTO_TAG'},inplace=True)
 
         x[i-1]=i
         y[i-1]=eval.word_acc_tst_corpuse(gold_df, test_tagged_df)
 
-if args.model == 'bi-gram':
-    tagger == HMMtag.HMMTagger()
+if args.model == 'bi-gram-logprob':
+    tagger = HMMtag.HMMTagger_logprobs()
+    print "starting iterations for model {}...".format(args.model)
+
     for ix, test_i in folds_train_gold_df.iterrows():
+        print "starting itr {}...".format(test_i.NUM_FOLD)
         i=test_i.NUM_FOLD
         train_file=test_i.TRAIN_PATH
         out_tagged_file=test_i.TAGGED_PATH_TBD
 
+        print "train model on train file {}...".format(train_file)
         lex_path=train_file.replace('.train','.lex')
         gram_path = train_file.replace('.train', '.gram')
 
-        tagger.train(train_file=train_file,train_file_out=True,lex_path_out=lex_path,gram_path_out=gram_path)
-        tagger.decode(sen_file_path=args.test_file,tagged_path=out_tagged_file)
+        # tagger.train(train_file=train_file,train_file_out=False,lex_path_out=lex_path,gram_path_out=gram_path)
+        tagger.train(train_file=train_file, train_file_out=False)
 
-        test_tagged_df = ld.load_gold_train(out_tagged_file)
-        test_tagged_df.rename(columns={'TAG': 'AUTO_TAG'}, inplace=True)
+        print "ite {} decode...".format(test_i.NUM_FOLD)
+        test_tagged_df = tagger.decode(sen_file=args.test_file,tagged_path=out_tagged_file)
+        print "ite {} output tagged file at {}...".format(out_tagged_file)
 
-        x[i]=i
-        y[i]=eval.word_acc_tst_corpuse(gold_df, test_tagged_df)
+        # test_tagged_df = ld.load_gold_train(out_tagged_file)
+        # test_tagged_df.rename(columns={'TAG': 'AUTO_TAG'}, inplace=True)
+
+        x[i-1]=i
+        y[i-1]=eval.word_acc_tst_corpuse(gold_df, test_tagged_df)
 
 plt.plot(x, y)
 plt.show()
