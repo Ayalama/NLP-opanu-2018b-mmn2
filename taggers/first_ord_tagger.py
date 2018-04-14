@@ -259,7 +259,7 @@ class HMMTagger(object):
 
     def output_gram(self, gram_path_out=None):
         if gram_path_out is None:
-            gram_path_out = os.getcwd() + '\\hmm_tagger_prev.gram'
+            gram_path_out = os.getcwd() + '\\hmm_tagger.gram'
         unigram_prob = self.get_unigram_prob()
         unigram_cnt = len(unigram_prob)
 
@@ -281,7 +281,7 @@ class HMMTagger(object):
         f.write("\n")
         f.close()
 
-        print "output hmm_tagger_prev.gram file at: {}".format(gram_path_out)
+        print "output hmm_tagger.gram file at: {}".format(gram_path_out)
         return
 
     def get_unigram_prob(self):

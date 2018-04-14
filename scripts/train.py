@@ -30,12 +30,12 @@ if args.model == 'baseline':
 if args.model == 'bi-gram':
     tagger = HMMtag.HMMTagger()
     lex_path_out = 'C:\\Users\\aymann\\PycharmProjects\\maman_12_NLP\\tests\\hmm_tagger_run2\\hmm_tagger.lex'
-    gram_path_out = 'C:\\Users\\aymann\\PycharmProjects\\maman_12_NLP\\tests\\hmm_tagger_run2\\hmm_tagger_prev.gram'
+    gram_path_out = 'C:\\Users\\aymann\\PycharmProjects\\maman_12_NLP\\tests\\hmm_tagger_run2\\hmm_tagger.gram'
     tagger.train(args.train_file, train_file_out=True,lex_path_out=lex_path_out,gram_path_out=gram_path_out)
 
 
 if args.model == 'bi-gram-logprob':
     tagger=HMMTagger_logprobs.HMMTagger_logprobs()
     lex_path_out = 'C:\\Users\\aymann\\PycharmProjects\\maman_12_NLP\\tests\\hmm_tagger_run3\\hmm_tagger.lex'
-    gram_path_out = 'C:\\Users\\aymann\\PycharmProjects\\maman_12_NLP\\tests\\hmm_tagger_run3\\hmm_tagger_prev.gram'
+    gram_path_out = 'C:\\Users\\aymann\\PycharmProjects\\maman_12_NLP\\tests\\hmm_tagger_run3\\hmm_tagger.gram'
     tagger.train(args.train_file, train_file_out=True,lex_path_out=lex_path_out,gram_path_out=gram_path_out)
