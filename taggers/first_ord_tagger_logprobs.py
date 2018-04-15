@@ -341,7 +341,7 @@ class HMMTagger_logprobs(object):
         # take transition probs and emission probs as values for states (all states where lnp_w_s and ln_s_sprev is not infinity)
         if len(states_to_iter)==0:
             df_s0_s['step_idx']=step_idx
-            df_s0_s.rename(columns={'TAG_i-1': 'prev_state','TAG_i':'state','PROB':'val'})
+            df_s0_s.rename(columns={'TAG_i-1': 'prev_state','TAG_i':'state','PROB':'val'},inplace=True)
             df_v=df_v.append(df_s0_s[['step_idx', 'state', 'val']])
             df_b=df_b.append(df_s0_s[['step_idx', 'state', 'prev_state']])
             df_p_w_s_tmp=df_p_w_s.rename(columns={'TAG':'state','SEG_PROB':'val'})
@@ -410,9 +410,11 @@ class HMMTagger_logprobs(object):
 
         if len(df_p_s_prvs_v)==0:
             print 'error...'
-
-        v_end = df_p_s_prvs_v.val_new.min()  # ValueError: attempt to get argmax of an empty sequence
-        b_end = df_p_s_prvs_v.loc[[df_p_s_prvs_v.val_new.idxmin()]]['TAG_i-1'].values[0]
+            v_end = prev_df_v.val.min()
+            b_end = prev_df_v.loc[[prev_df_v.val.idxmin()]]['state'].values[0]
+        else:
+            v_end = df_p_s_prvs_v.val_new.min()  # ValueError: attempt to get argmax of an empty sequence
+            b_end = df_p_s_prvs_v.loc[[df_p_s_prvs_v.val_new.idxmin()]]['TAG_i-1'].values[0]
 
         # trace back to t*
         decoded_tags = pd.DataFrame(columns=['SEN_NUM', 'WORD_NUM', 'TAG'])

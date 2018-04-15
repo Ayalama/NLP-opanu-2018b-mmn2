@@ -1,13 +1,11 @@
-import datasets.load_data_sets as ld
+import csv
+import os
+
 import numpy as np
 import pandas as pd
-import os
-import csv
+
+import datasets.load_data_sets as ld
 import evaluation.evaluation_measures as eval
-import sys
-
-
-# train_file = "heb-pod.train"
 
 
 class HMMTagger(object):
@@ -136,51 +134,6 @@ class HMMTagger(object):
         self.transition_probs = df_merge[['TAG_i', 'TAG_i-1', 'PROB']]
         return
 
-    # input- untagged sentence file (formatted as test
-    # output- tagged sentence file/DF according to training. formatted as gold file
-    # def decode(self, sen_file, lex_file=None, gram_file=None, tagged_path=None):
-    #     df_to_decode = ld.load_data(sen_file, is_tagged=False)
-    #     df_to_decode = self.set_EOS(df_to_decode)
-    #
-    #     decoded_tags = pd.DataFrame(columns=['SEN_NUM', 'WORD_NUM', 'TAG'])
-    #
-    #     if lex_file is not None:
-    #         self.load_lex_from_file(lex_file)
-    #     if gram_file is not None:
-    #         self.load_gram_from_file(gram_file)
-    #     self.set_states()
-    #
-    #     df_v = pd.DataFrame(columns=['step_idx', 'state', 'val'])
-    #     df_b = pd.DataFrame(columns=['step_idx', 'state', 'prev_state'])
-    #
-    #     # loop on all sentences
-    #     for i in xrange(1, df_to_decode.SEN_NUM.max() + 1):
-    #         sentence_words_df = df_to_decode[np.where((df_to_decode['SEN_NUM'] == i), 1, 0) == 1]
-    #
-    #         words_array = sentence_words_df.as_matrix(columns=['SEG']).flat
-    #         # initialize
-    #         df_v_tmp, df_b_tmp = self.viterbi_init(words_array)
-    #         df_v = df_v.append(df_v_tmp)
-    #         df_b = df_b.append(df_b_tmp)
-    #         # recursion
-    #         try:
-    #             if i == 62:
-    #                 print "stop"
-    #             decoded_sen_tags = self.viterbi_recursion(words_array, df_v, df_b)  # TODO- arrange code
-    #             decoded_sen_tags['SEN_NUM'] = i
-    #             decoded_tags = decoded_tags.append(decoded_sen_tags, ignore_index=True)
-    #         except ValueError:
-    #             print "faild to decode sentence number {}: ".format(sentence_words_df.SEN_NUM.max())
-    #             print sentence_words_df.SEG
-    #             print sys.exc_info()[0]
-    #         df_v = pd.DataFrame(columns=['step_idx', 'state', 'val'])
-    #         df_b = pd.DataFrame(columns=['step_idx', 'state', 'prev_state'])
-    #
-    #     df_to_decode = pd.merge(df_to_decode, decoded_tags, on=['SEN_NUM', 'WORD_NUM'])
-    #     df_to_decode.rename(columns={'TAG': 'AUTO_TAG'}, inplace=True)
-    #     self.output_tagging(df_to_decode, tagged_path=tagged_path)
-    #     return df_to_decode
-
     def decode(self, sen_file, lex_file=None, gram_file=None, tagged_path=None):
         df_to_decode = ld.load_data(sen_file, is_tagged=False)
         df_to_decode = self.set_EOS(df_to_decode)
@@ -213,7 +166,7 @@ class HMMTagger(object):
         df_v, df_b = self.viterbi_init(words_array)
         # recursion
         try:
-            decoded_sen_tags = self.viterbi_recursion(words_array, df_v, df_b)  # TODO- arrange code
+            decoded_sen_tags = self.viterbi_recursion(words_array, df_v, df_b)
             decoded_sen_tags['SEN_NUM'] = sentence_words_df.SEN_NUM.max()
             return decoded_sen_tags
         except ValueError:
@@ -245,7 +198,7 @@ class HMMTagger(object):
     # output *.lex file to specified output path
     # row format : SEG POS1 logprob1 POS2 logprob2 ...
     def output_lex(self, lex_path_out=None):
-        rows_segments, columns_tags, lex = self.create_lexical_format()  # TODO- improve performance
+        rows_segments, columns_tags, lex = self.create_lexical_format()
 
         if lex_path_out is None:
             lex_path_out = os.getcwd() + '\\hmm_tagger.lex'
@@ -464,69 +417,3 @@ class HMMTagger(object):
             cur_tag = prev_tag
 
         return decoded_tags
-
-        # def viterbi_recursion(self, sentence, df_v, df_b):
-        #     num_words = len(sentence) + 1
-        #     for i in xrange(2, num_words):
-        #         wi = sentence[i - 1]
-        #         step_idx = i
-        #         prev_df_v = df_v[np.where(df_v['step_idx'] == i - 1, 1,
-        #                                   0) == 1]  # all tags that are prior to current tag and their probs in input sentence
-        #         if self.is_word_known(wi):
-        #             for ix, s in self.states[np.where((self.states['TAG'] <> 'START') & (self.states['TAG'] <> 'END'), 1,
-        #                                               0) == 1].iterrows():
-        #                 cur_state_name = s.TAG
-        #                 p_wi_s = self.lexical[
-        #                     np.where((self.lexical['SEG'] == wi) & (self.lexical['TAG'] == cur_state_name), 1,
-        #                              0) == 1].SEG_PROB
-        #                 if len(p_wi_s) == 0:
-        #                     p_wi_s = 0
-        #                 else:
-        #                     p_wi_s = p_wi_s.values[0]
-        #
-        #                 if len(prev_df_v) == 1 and prev_df_v.state.values[0] == 'NNP':
-        #                     v_i_s = 1 * p_wi_s
-        #                     b_i_s = 'NNP'
-        #                 else:
-        #                     df_p_s_prvs = self.transition_probs[
-        #                         np.where(self.transition_probs['TAG_i'] == cur_state_name, 1,
-        #                                  0) == 1]  # all tags that are prior to current tag and their probs in training set
-        #                     df_p_s_prvs_v = pd.merge(prev_df_v, df_p_s_prvs, left_on='state', right_on='TAG_i-1')
-        #                     df_p_s_prvs_v['val_new'] = df_p_s_prvs_v['val'] * df_p_s_prvs_v['PROB'] * p_wi_s
-        #                     v_i_s = df_p_s_prvs_v.val_new.max()
-        #                     b_i_s = df_p_s_prvs_v.loc[[df_p_s_prvs_v.val_new.idxmax()]]['TAG_i-1'].values[0]
-        #
-        #                 df_v = df_v.append({'step_idx': step_idx, 'state': cur_state_name, 'val': v_i_s}, ignore_index=True)
-        #                 df_b = df_b.append({'step_idx': step_idx, 'state': cur_state_name, 'prev_state': b_i_s},
-        #                                    ignore_index=True)
-        #         else:
-        #             cur_state_name = 'NNP'
-        #             prev_df_v = df_v[np.where(df_v['step_idx'] == i - 1, 1, 0) == 1]
-        #             b_i_s = prev_df_v.loc[[prev_df_v.val.idxmax()]].state.values[0]
-        #             df_v = df_v.append({'step_idx': step_idx, 'state': cur_state_name, 'val': 1}, ignore_index=True)
-        #             df_b = df_b.append({'step_idx': step_idx, 'state': cur_state_name, 'prev_state': b_i_s},
-        #                                ignore_index=True)
-        #
-        #     # add 'END' state lines
-        #     prev_df_v = df_v[np.where(df_v['step_idx'] == num_words - 1, 1, 0) == 1]
-        #     df_p_s_prvs = self.transition_probs[
-        #         np.where(self.transition_probs['TAG_i'] == 'END', 1, 0) == 1]  # all tags arrived before END
-        #     df_p_s_prvs_v = pd.merge(prev_df_v, df_p_s_prvs, left_on='state', right_on='TAG_i-1')
-        #     df_p_s_prvs_v['val_new'] = df_p_s_prvs_v['val'] * df_p_s_prvs_v['PROB']
-        #     v_end = df_p_s_prvs_v.val_new.max()  # ValueError: attempt to get argmax of an empty sequence
-        #     b_end = df_p_s_prvs_v.loc[[df_p_s_prvs_v.val_new.idxmax()]]['TAG_i-1'].values[0]
-        #
-        #     # trace back to t*
-        #     decoded_tags = pd.DataFrame(columns=['SEN_NUM', 'WORD_NUM', 'TAG'])
-        #     counter = num_words - 1
-        #     cur_tag = b_end
-        #     while counter > 0:
-        #         prev_tag = \
-        #             df_b['prev_state'][
-        #                 np.where((df_b['step_idx'] == counter) & (df_b['state'] == cur_tag), 1, 0) == 1].values[
-        #                 0]
-        #         decoded_tags = decoded_tags.append({'SEN_NUM': 0, 'WORD_NUM': counter, 'TAG': cur_tag}, ignore_index=True)
-        #         counter -= 1
-        #         cur_tag = prev_tag
-        #
-        #     return decoded_tags

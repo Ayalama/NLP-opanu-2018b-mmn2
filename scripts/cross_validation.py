@@ -84,7 +84,7 @@ if args.model == 'bi-gram-logprob':
 
         print "ite {} decode...".format(test_i.NUM_FOLD)
         test_tagged_df = tagger.decode(sen_file=args.test_file,tagged_path=out_tagged_file)
-        print "ite {} output tagged file at {}...".format(out_tagged_file)
+        print "ite {} output tagged file at {}...".format(test_i.TRAIN_PATH,out_tagged_file)
 
         # test_tagged_df = ld.load_gold_train(out_tagged_file)
         # test_tagged_df.rename(columns={'TAG': 'AUTO_TAG'}, inplace=True)
@@ -93,4 +93,7 @@ if args.model == 'bi-gram-logprob':
         y[i-1]=eval.word_acc_tst_corpuse(gold_df, test_tagged_df)
 
 plt.plot(x, y)
+plt.title("Model learning curve")
+plt.ylabl("accuracy")
+plt.xlabl("iteration number")
 plt.show()
