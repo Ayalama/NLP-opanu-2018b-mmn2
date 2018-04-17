@@ -1,0 +1,17 @@
+############## Additional info ###########
+* run learning_curve.python script
+* executing on hmm model with unknown words smoothing (tagged file under hmm_tagger_run3 folder)
+
+############## params ###########
+--model=bi-gram-logprob
+--train_file=C:\Users\aymann\PycharmProjects\maman_12_NLP\datasets\heb-pos.train
+--test_file=C:\Users\aymann\PycharmProjects\maman_12_NLP\datasets\heb-pos.test
+--gold_file=C:\Users\aymann\PycharmProjects\maman_12_NLP\datasets\heb-pos.gold
+--smoothing=n
+
+############### outputs ##########
+* training_set_folds- folder contain split of train_file into 10 parts
+* training_files- contain the file for the model to train on in each iteraion. itr 1: file part 1. itr 2: file part 1+2 and so on...
+* tagged_files- model *.tagged output according to relevant trainig file for iteraion
+
+

@@ -1,0 +1,16 @@
+test params:
+############## train ###########
+--model=baseline
+--train_file=C:\\Users\\aymann\\PycharmProjects\\maman_12_NLP\\datasets\\heb-pos.train
+--smoothing=n
+
+############## decode ###########
+--model=baseline
+--test_file=C:\Users\aymann\PycharmProjects\maman_12_NLP\datasets\heb-pos.test
+--param_file1=C:\Users\aymann\PycharmProjects\maman_12_NLP\tests\basline_run\basic_tagger_params.train
+
+############## eval ###########
+--model_tagged=C:\Users\aymann\PycharmProjects\maman_12_NLP\tests\basline_run\basic_tagger.tagged
+--gold_file=C:\Users\aymann\PycharmProjects\maman_12_NLP\datasets\heb-pos.gold
+--model=bi-baseline
+--smoothing=n

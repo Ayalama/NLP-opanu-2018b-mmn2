@@ -1,11 +1,12 @@
-import taggers.basic_tagger as bstag
-import taggers.first_ord_tagger as hmm
-import evaluation.evaluation_measures as eval
-import datasets.load_data_sets as ld
+import taggers.first_ord_tagger_logprobs as hmm_log
+
+import src.evaluation.evaluation_measures as eval
+import src.taggers.basic_tagger as bstag
+from src import datasets as ld
 
 gold_file = r'C:\Users\aymann\PycharmProjects\maman_12_NLP\datasets\heb-pos.gold'
-train_file = r'C:\Users\aymann\PycharmProjects\maman_12_NLP\datasets\heb-pos-small.train'
-test_file = r'C:\Users\aymann\PycharmProjects\maman_12_NLP\datasets\heb-pos-small.test'
+train_file = r'C:\Users\aymann\PycharmProjects\maman_12_NLP\datasets\heb-pos.train'
+test_file = r'C:\Users\aymann\PycharmProjects\maman_12_NLP\datasets\heb-pos.test'
 
 
 def test_basic_tagger(with_eval=False):
@@ -40,9 +41,20 @@ def test_eval():
 
 if __name__ == '__main__':  # This is needed to allow multiprocessing in windows
     # test_basic_tagger()
-    hmmtag=hmm.HMMTagger()
-    # hmmtag.train(train_file) # set train_data and lexical_data
-    # df_to_decode=hmmtag.decode(test_file)
-    train='C:\\Users\\aymann\\PycharmProjects\\maman_12_NLP\\datasets\\heb-pos-small.train'
-    hmmtag.train(train_file=train,train_file_out=False)
-    print ""
+    tagger=hmm_log.HMMTagger_logprobs()
+    # gold_df = ld.load_gold_train(gold_file)
+    print "starting itr {}...".format(3)
+    i = 4
+    train_file = r'C:\Users\aymann\PycharmProjects\maman_12_NLP\datasets\folds\train_gold\heb-pos-folds_1_4.train'
+    out_tagged_file = r'C:\Users\aymann\PycharmProjects\maman_12_NLP\tests\itr_4_tagged_221.tagged'
+
+    print "train model on train file {}...".format(train_file)
+    lex_path = train_file.replace('.train', '.lex')
+    gram_path = train_file.replace('.train', '.gram')
+
+    # tagger.train(train_file=train_file,train_file_out=False,lex_path_out=lex_path,gram_path_out=gram_path)
+    tagger.train(train_file=train_file, train_file_out=False)
+
+    print "ite {} decode...".format(i)
+    test_tagged_df = tagger.decode(sen_file=test_file, tagged_path=out_tagged_file)
+    print "ite {} output tagged file at {}...".format(train_file, out_tagged_file)
