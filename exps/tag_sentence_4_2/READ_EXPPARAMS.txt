@@ -1,0 +1,10 @@
+test params:
+############## decode ###########
+execution command: "python decode.py 2 exps\tag_sentence_4_2\sentance_tag_4_2.test  exps\tag_sentence_4_2\hmm_tagger.lex exps\tag_sentence_4_2\hmm_tagger.gram"
+
+model=2
+test_file=exps\tag_sentence_4_2\sentance_tag_4_2.test
+param_file1=exps\tag_sentence_4_2\hmm_tagger.lex
+param_file2=exps\tag_sentence_4_2\hmm_tagger.gram
+
+output: results\tag_sentence_4_2\sentance_tag_4_2.tagged

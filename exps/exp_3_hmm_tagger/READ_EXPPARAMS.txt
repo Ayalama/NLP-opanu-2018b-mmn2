@@ -1,0 +1,38 @@
+test params:
+############## train ###########
+execution command: "python train.py 2 exps\exp_3_hmm_tagger\heb-pos.train  n"
+
+model=2
+train_file=exps\exp_3_hmm_tagger\heb-pos.train
+smoothing=n
+
+output: 
+exps\exp_3_hmm_tagger\hmm_tagger.lex
+exps\exp_3_hmm_tagger\hmm_tagger.gram
+
+############## decode ###########
+execution command: "python decode.py 2 exps\exp_3_hmm_tagger\heb-pos.test  exps\exp_3_hmm_tagger\hmm_tagger.lex exps\exp_3_hmm_tagger\hmm_tagger.gram"
+
+model=2
+test_file=exps\exp_3_hmm_tagger\heb-pos.test
+param_file1=exps\exp_3_hmm_tagger\hmm_tagger.lex
+param_file2=exps\exp_3_hmm_tagger\hmm_tagger.gram
+
+output:results\exp_3_hmm_tagger_results\hmm_tagger.tagged
+
+############## eval ###########
+execution command: "python evaluate.py  results\exp_3_hmm_tagger_results\hmm_tagger.tagged exps\exp_3_hmm_tagger\heb-pos.gold 2  n"
+
+model_tagged=results\exp_3_hmm_tagger_results\hmm_tagger.tagged
+gold_file=exps\exp_3_hmm_tagger\heb-pos.gold
+model=2
+smoothing=n
+
+output: results\exp_3_hmm_tagger_results\hmm_tagger.eval
+
+############## Additional info ###########
+* cases where set of possible states for a word w_i is empty and w_i is known , meaning for each state: p(w_i|s_i)=0 or p(s_i|s_i-1)=0:
+    - possible states for transition are s where
+    1. (p(w_i|s_i)<>0 and p(s_i|s_i-1)=0). in this case val_si= max p(w_i|s_i)*val_s'(i-1) . prev state will be argmax s'
+    2. (p(w_i|s_i)=0 and p(s_i|s_i-1)<>0). in this case val_si= max p(s_i|s_i-1)*val_s_i-1(i-1) . prev state will be argmax on s_i-1
+* unknown words tagged with NNP

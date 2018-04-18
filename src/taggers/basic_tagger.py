@@ -5,7 +5,7 @@ import pandas as pd
 import scipy.stats
 
 import src.evaluation.evaluation_measures as eval
-from src import datasets as ld
+import src.datasets.load_data_sets as ld
 
 
 # train_file = "heb-pod.train"

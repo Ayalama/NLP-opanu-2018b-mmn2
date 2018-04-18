@@ -1,0 +1,18 @@
+############## Additional info ###########
+* run learning_curve.python script
+* executing on hmm model with unknown words smoothing (tagged file under hmm_tagger_run3 folder)
+
+############## params ###########
+execution command: "python src/learning_curve.py 2 exps\exp_4_hmm_tagger\heb-pos.train exps\exp_4_hmm_tagger\heb-pos.test exps\exp_4_hmm_tagger\heb-pos.gold"
+
+model = 2
+train_file = exps\exp_4_hmm_tagger\heb-pos.train
+test_file = exps\exp_4_hmm_tagger\heb-pos.test
+gold_file = exps\exp_4_hmm_tagger\heb-pos.gold
+
+############### outputs ##########
+* training_set_folds- folder contain split of train_file into 10 parts
+* training_files- contain the file for the model to train on in each iteraion. itr 1: file part 1. itr 2: file part 1+2 and so on...
+* tagged_files- model *.tagged output according to relevant trainig file for iteraion
+
+

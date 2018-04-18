@@ -1,0 +1,22 @@
+test params
+############## train ###########
+execution command: "python train.py 1 exps\exp_1_basline_run\heb-pos.train  n"
+
+model=1
+train_file=exps\exp_1_basline_run\heb-pos.train
+smoothing=n
+
+############## decode ###########
+execution command: "python decode.py 1 exps\exp_1_basline_run\heb-pos.test  exps\exp_1_basline_run\basic_tagger_params.train"
+
+model=1
+test_file=exps\exp_1_basline_run\heb-pos.test
+param_file1=exps\exp_1_basline_run\basic_tagger_params.train
+
+############## eval ###########
+execution command: "python evaluate.py  results\exp_1_basline_results\basic_tagger.tagged exps\exp_1_basline_run\heb-pos.gold 1  n"
+
+model_tagged=results\exp_1_basline_results\basic_tagger.tagged
+gold_file=exps\exp_1_basline_run\heb-pos.gold
+model=1
+smoothing=n

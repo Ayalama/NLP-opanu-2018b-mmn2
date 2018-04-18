@@ -1,0 +1,35 @@
+test params:
+############## train ###########
+execution command: "python train.py 2 exps\exp_2_hmm_tagger\heb-pos.train  n"
+
+model=2
+train_file=exps\exp_2_hmm_tagger\heb-pos.train
+smoothing=n
+
+output: 
+exps\exp_2_hmm_tagger\hmm_tagger.lex
+exps\exp_2_hmm_tagger\hmm_tagger.gram
+############## decode ###########
+execution command: "python decode.py 2 exps\exp_2_hmm_tagger\heb-pos.test  exps\exp_2_hmm_tagger\hmm_tagger.lex exps\exp_2_hmm_tagger\hmm_tagger.gram"
+
+model=2
+test_file=exps\exp_2_hmm_tagger\heb-pos.test
+param_file1=exps\exp_2_hmm_tagger\hmm_tagger.lex
+param_file2=exps\exp_2_hmm_tagger\hmm_tagger.gram
+
+output:results\exp_2_hmm_tagger_results\hmm_tagger.tagged
+############## eval ###########
+execution command: "python evaluate.py  results\exp_2_hmm_tagger_results\hmm_tagger.tagged exps\exp_2_hmm_tagger\heb-pos.gold 2  n"
+
+model_tagged=results\exp_2_hmm_tagger_results\hmm_tagger.tagged
+gold_file=exps\exp_2_hmm_tagger\heb-pos.gold
+model=2
+smoothing=n
+
+output: results\exp_2_hmm_tagger_results\hmm_tagger.eval
+############## Additional info ###########
+* in this run, viterbi values calculated for each state
+* unknown eords tagged with NNP
+* unknown transition or unknown stat-word pairs are valued 0 (prioir to log transformation): p(w_i|s_i)=0 or p(s_i|s_i-1)=0 therefor p(w_i|s_i)=0*p(s_i|s_i-1)=0
+* if all possible states are with value 0 for step,prioir to log transformation, (p(w_i|s_i)=0 or p(s_i|s_i-1)=0 for each state) than maxarg will be selected randomly
+

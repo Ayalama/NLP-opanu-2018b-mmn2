@@ -1,0 +1,13 @@
+############## Additional info ###########
+* run confusion_matrix.python script
+* executing on hmm model with unknown words smoothing (tagged file under hmm_tagger_run3 folder)
+
+############## params ###########
+execution command: "python src/confusion_matrix.py 2 results\exp_4_hmm_tagger_results\hmm_tagger.tagged exps\exp_4_hmm_tagger\heb-pos.gold"
+
+model=2
+test_file= results\exp_4_hmm_tagger_results\hmm_tagger.tagged
+gold_file= exps\exp_4_hmm_tagger\heb-pos.gold
+
+
+

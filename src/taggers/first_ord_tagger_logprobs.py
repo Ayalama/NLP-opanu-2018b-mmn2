@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 
 import src.evaluation.evaluation_measures as eval
-from src import datasets as ld
+import src.datasets.load_data_sets as ld
 
 
 # train_file = "heb-pod.train"
@@ -17,7 +17,7 @@ class HMMTagger_logprobs(object):
         self.states = None
         self.lexical = None
         self.transition_probs = None
-        self.unigrams=None
+        self.unigrams = None
         pass
 
     def train(self, train_file, train_file_out=True, lex_path_out=None, gram_path_out=None):
@@ -30,7 +30,7 @@ class HMMTagger_logprobs(object):
         print "setting states..."
         self.set_states()
         print "setting unigrams..."
-        self.unigrams=self.get_unigram_prob()[['TAG','PROB']]
+        self.unigrams = self.get_unigram_prob()[['TAG', 'PROB']]
 
         if train_file_out:
             print "outputting param train files: *.lex..."
@@ -68,7 +68,7 @@ class HMMTagger_logprobs(object):
         df_tag_cnt.rename(index=str, columns={'WORD_NUM': 'TAG_CNT'}, inplace=True)
 
         df_seg = pd.merge(df_seg_tag_cnt, df_tag_cnt, how='inner', on='TAG')
-        df_seg['SEG_PROB'] = np.log(df_seg['TAG_CNT'])-np.log(df_seg['SEG_TAG_CNT'])
+        df_seg['SEG_PROB'] = np.log(df_seg['TAG_CNT']) - np.log(df_seg['SEG_TAG_CNT'])
 
         self.lexical = df_seg[['SEG', 'TAG', 'SEG_PROB']]
         return
@@ -136,7 +136,7 @@ class HMMTagger_logprobs(object):
         df_pairs_cnt = tag_pairs.groupby(['TAG_i', 'TAG_i-1'], as_index=False)['PAIR_FREQ_CNT'].count()
 
         df_merge = pd.merge(df_tag_cnt, df_pairs_cnt, how='inner', on='TAG_i-1')
-        df_merge['PROB'] = np.log(df_merge['TAG_FREQ_CNT'])-np.log(df_merge['PAIR_FREQ_CNT'])
+        df_merge['PROB'] = np.log(df_merge['TAG_FREQ_CNT']) - np.log(df_merge['PAIR_FREQ_CNT'])
         self.transition_probs = df_merge[['TAG_i', 'TAG_i-1', 'PROB']]
         return
 
@@ -172,8 +172,6 @@ class HMMTagger_logprobs(object):
         df_v, df_b = self.viterbi_init(words_array)
         # recursion
         try:
-            # if sentence_words_df.SEN_NUM.max()==221:
-            #     print "stop..."
             decoded_sen_tags = self.viterbi_recursion(words_array, df_v, df_b)
             decoded_sen_tags['SEN_NUM'] = sentence_words_df.SEN_NUM.max()
             return decoded_sen_tags
@@ -183,15 +181,13 @@ class HMMTagger_logprobs(object):
             print ValueError.message
             return pd.DataFrame(columns=['SEN_NUM', 'WORD_NUM', 'TAG'])
 
-
     def is_word_known(self, word):
         if len(self.lexical[np.where(self.lexical['SEG'] == word, 1, 0) == 1]) == 0:
             return False
         else:
             return True
 
-
-    def evaluate(self, gold_file, test_file, smoothing='n',output_path=None):
+    def evaluate(self, gold_file, test_file, smoothing='n', output_path=None):
         gold_df = ld.load_gold_train(gold_file)
         test_tagged_df = ld.load_gold_train(test_file)
         if output_path is None:
@@ -246,7 +242,7 @@ class HMMTagger_logprobs(object):
         unigram_prob = self.train_data[['TAG']]
         unigram_prob['CNT'] = 0
         unigram_prob = unigram_prob.groupby(['TAG'], as_index=False)['CNT'].count()
-        unigram_prob['PROB'] = np.log(len(self.train_data))-np.log(unigram_prob['CNT'])
+        unigram_prob['PROB'] = np.log(len(self.train_data)) - np.log(unigram_prob['CNT'])
         return unigram_prob[['PROB', 'TAG']]
 
     def load_lex_from_file(self, lex_file):
@@ -291,8 +287,8 @@ class HMMTagger_logprobs(object):
         for unigram in unigrams:
             prob, tag = unigram.replace('\n', '').split('\t')
             prob = float(prob)
-            self.unigrams = self.unigrams.append({'TAG': tag,'PROB': prob},
-                                                                 ignore_index=True)
+            self.unigrams = self.unigrams.append({'TAG': tag, 'PROB': prob},
+                                                 ignore_index=True)
 
         return
 
@@ -332,7 +328,8 @@ class HMMTagger_logprobs(object):
             v_i_s = df_s0_s.PROB.min()
             cur_state_name = df_s0_s.loc[[df_s0_s.PROB.idxmin()]]['TAG_i'].values[0]
             df_v = df_v.append({'step_idx': step_idx, 'state': cur_state_name, 'val': v_i_s}, ignore_index=True)
-            df_b = df_b.append({'step_idx': step_idx, 'state': cur_state_name, 'prev_state': 'START'}, ignore_index=True)
+            df_b = df_b.append({'step_idx': step_idx, 'state': cur_state_name, 'prev_state': 'START'},
+                               ignore_index=True)
 
             return df_v, df_b
 
@@ -342,24 +339,24 @@ class HMMTagger_logprobs(object):
         states_to_iter = states_to_iter[['TAG']].drop_duplicates()
 
         # take transition probs and emission probs as values for states (all states where lnp_w_s and ln_s_sprev is not infinity)
-        if len(states_to_iter)==0:
-            df_s0_s['step_idx']=step_idx
-            df_s0_s.rename(columns={'TAG_i-1': 'prev_state','TAG_i':'state','PROB':'val'},inplace=True)
-            df_v=df_v.append(df_s0_s[['step_idx', 'state', 'val']])
-            df_b=df_b.append(df_s0_s[['step_idx', 'state', 'prev_state']])
-            df_p_w_s_tmp=df_p_w_s.rename(columns={'TAG':'state','SEG_PROB':'val'})
+        if len(states_to_iter) == 0:
+            df_s0_s['step_idx'] = step_idx
+            df_s0_s.rename(columns={'TAG_i-1': 'prev_state', 'TAG_i': 'state', 'PROB': 'val'}, inplace=True)
+            df_v = df_v.append(df_s0_s[['step_idx', 'state', 'val']])
+            df_b = df_b.append(df_s0_s[['step_idx', 'state', 'prev_state']])
+            df_p_w_s_tmp = df_p_w_s.rename(columns={'TAG': 'state', 'SEG_PROB': 'val'})
             df_p_w_s_tmp['step_idx'] = step_idx
-            df_p_w_s_tmp['prev_state']='START'
-            df_v=df_v.append(df_p_w_s_tmp[['step_idx', 'state', 'val']])
-            df_b=df_b.append(df_p_w_s_tmp[['step_idx', 'state', 'prev_state']])
+            df_p_w_s_tmp['prev_state'] = 'START'
+            df_v = df_v.append(df_p_w_s_tmp[['step_idx', 'state', 'val']])
+            df_b = df_b.append(df_p_w_s_tmp[['step_idx', 'state', 'prev_state']])
             return df_v, df_b
 
         for ix, s in states_to_iter.iterrows():
             state_name = s.TAG
             p_s_start = df_s0_s[np.where(df_s0_s['TAG_i'] == state_name, 1, 0) == 1].PROB
-            p_s_start = p_s_start.values[0] #-1*lnP(w|s)
+            p_s_start = p_s_start.values[0]  # -1*lnP(w|s)
 
-            p_w1_s = df_p_w_s[np.where(df_p_w_s['TAG'] == state_name, 1, 0) == 1].SEG_PROB #-1*lnP(S|Start)
+            p_w1_s = df_p_w_s[np.where(df_p_w_s['TAG'] == state_name, 1, 0) == 1].SEG_PROB  # -1*lnP(S|Start)
             p_w1_s = p_w1_s.values[0]
 
             val = p_s_start + p_w1_s
@@ -370,48 +367,56 @@ class HMMTagger_logprobs(object):
 
     def viterbi_recursion(self, sentence, df_v, df_b):
         num_words = len(sentence) + 1
-        states=self.states[np.where((self.states['TAG'] <> 'START') & (self.states['TAG'] <> 'END'), 1,0) == 1]
+        states = self.states[np.where((self.states['TAG'] <> 'START') & (self.states['TAG'] <> 'END'), 1, 0) == 1]
         states.rename(columns={'TAG': 'TAG_i'}, inplace=True)
 
         for i in xrange(2, num_words):
             wi = sentence[i - 1]
             step_idx = i
-            prev_df_v = df_v[np.where(df_v['step_idx'] == i - 1, 1,0) == 1]  # all tags that are prior to current tag and their probs in input sentence
-            df_prevs_s = pd.merge(self.transition_probs[np.where(self.transition_probs['TAG_i'] <> 'END', 1,0) == 1] ,prev_df_v,left_on='TAG_i-1',right_on='state') # all tags that are shown after previous step
+            prev_df_v = df_v[np.where(df_v['step_idx'] == i - 1, 1,
+                                      0) == 1]  # all tags that are prior to current tag and their probs in input sentence
+            df_prevs_s = pd.merge(self.transition_probs[np.where(self.transition_probs['TAG_i'] <> 'END', 1, 0) == 1],
+                                  prev_df_v, left_on='TAG_i-1',
+                                  right_on='state')  # all tags that are shown after previous step
             df_itr_states = df_prevs_s[['TAG_i']].drop_duplicates()
 
             if self.is_word_known(wi):
-                df_p_w_s = self.lexical[np.where(self.lexical['SEG'] == wi, 1, 0) == 1]  # format: 'SEG','TAG','SEG_PROB'
+                df_p_w_s = self.lexical[
+                    np.where(self.lexical['SEG'] == wi, 1, 0) == 1]  # format: 'SEG','TAG','SEG_PROB'
                 states_to_iter = pd.merge(df_itr_states, df_p_w_s, left_on=['TAG_i'], right_on=['TAG'])
 
                 if len(states_to_iter) == 0:
-                    df_v, df_b=self.smooth_unknown_states(df_prevs_s=df_prevs_s,step_idx=step_idx,df_v=df_v,df_b=df_b,df_p_w_s=df_p_w_s,prev_df_v=prev_df_v)
+                    df_v, df_b = self.smooth_unknown_states(df_prevs_s=df_prevs_s, step_idx=step_idx, df_v=df_v,
+                                                            df_b=df_b, df_p_w_s=df_p_w_s, prev_df_v=prev_df_v)
 
                 else:
                     for ix, s in states_to_iter.iterrows():
                         cur_state_name = s.TAG
-                        p_wi_s = df_p_w_s[np.where(df_p_w_s['TAG'] == cur_state_name, 1,0) == 1].SEG_PROB
+                        p_wi_s = df_p_w_s[np.where(df_p_w_s['TAG'] == cur_state_name, 1, 0) == 1].SEG_PROB
                         p_wi_s = p_wi_s.values[0]
 
-                        df_p_s_prvs_v = df_prevs_s[np.where(df_prevs_s['TAG_i'] == cur_state_name, 1, 0) == 1]  # all tags that are prior to current tag and their probs in training set
+                        df_p_s_prvs_v = df_prevs_s[np.where(df_prevs_s['TAG_i'] == cur_state_name, 1,
+                                                            0) == 1]  # all tags that are prior to current tag and their probs in training set
                         df_p_s_prvs_v['val_new'] = df_p_s_prvs_v['val'] + df_p_s_prvs_v['PROB'] + p_wi_s
                         v_i_s = df_p_s_prvs_v.val_new.min()
                         b_i_s = df_p_s_prvs_v.loc[[df_p_s_prvs_v.val_new.idxmin()]]['TAG_i-1'].values[0]
 
-                        df_v = df_v.append({'step_idx': step_idx, 'state': cur_state_name, 'val': v_i_s}, ignore_index=True)
+                        df_v = df_v.append({'step_idx': step_idx, 'state': cur_state_name, 'val': v_i_s},
+                                           ignore_index=True)
                         df_b = df_b.append({'step_idx': step_idx, 'state': cur_state_name, 'prev_state': b_i_s},
                                            ignore_index=True)
             else:
-                df_v, df_b=self.smooth_unknown_word(df_prevs_s=df_prevs_s, prev_df_v=prev_df_v, step_idx=step_idx, df_v=df_v, df_b=df_b)
-
+                df_v, df_b = self.smooth_unknown_word(df_prevs_s=df_prevs_s, step_idx=step_idx,
+                                                      df_v=df_v, df_b=df_b)
 
         # add 'END' state lines
         prev_df_v = df_v[np.where(df_v['step_idx'] == num_words - 1, 1, 0) == 1]
-        df_p_s_prvs = self.transition_probs[np.where(self.transition_probs['TAG_i'] == 'END', 1, 0) == 1]  # all tags arrived before END
+        df_p_s_prvs = self.transition_probs[
+            np.where(self.transition_probs['TAG_i'] == 'END', 1, 0) == 1]  # all tags arrived before END
         df_p_s_prvs_v = pd.merge(prev_df_v, df_p_s_prvs, left_on='state', right_on='TAG_i-1')
         df_p_s_prvs_v['val_new'] = df_p_s_prvs_v['val'] + df_p_s_prvs_v['PROB']
 
-        if len(df_p_s_prvs_v)==0:
+        if len(df_p_s_prvs_v) == 0:
             print 'error...'
             v_end = prev_df_v.val.min()
             b_end = prev_df_v.loc[[prev_df_v.val.idxmin()]]['state'].values[0]
@@ -424,14 +429,16 @@ class HMMTagger_logprobs(object):
         counter = num_words - 1
         cur_tag = b_end
         while counter > 0:
-            prev_tag = df_b['prev_state'][np.where((df_b['step_idx'] == counter) & (df_b['state'] == cur_tag), 1, 0) == 1].values[0]
+            prev_tag = \
+            df_b['prev_state'][np.where((df_b['step_idx'] == counter) & (df_b['state'] == cur_tag), 1, 0) == 1].values[
+                0]
             decoded_tags = decoded_tags.append({'SEN_NUM': 0, 'WORD_NUM': counter, 'TAG': cur_tag}, ignore_index=True)
             counter -= 1
             cur_tag = prev_tag
 
         return decoded_tags
 
-    def smooth_unknown_states(self,df_prevs_s,step_idx,df_v,df_b,df_p_w_s,prev_df_v):
+    def smooth_unknown_states(self, df_prevs_s, step_idx, df_v, df_b, df_p_w_s, prev_df_v):
         df_prevs_s['step_idx'] = step_idx
         df_prevs_s['val_new'] = df_prevs_s['val'] + df_prevs_s['PROB']
         df_prevs_s = df_prevs_s[['step_idx', 'TAG_i-1', 'TAG_i', 'val_new']]
@@ -449,23 +456,32 @@ class HMMTagger_logprobs(object):
         df_p_w_s.rename(columns={'TAG': 'state'}, inplace=True)
         df_v = df_v.append(df_p_w_s[['step_idx', 'state', 'val']])
         df_b = df_b.append(df_p_w_s[['step_idx', 'state', 'prev_state']])
-        return df_v,df_b
+        return df_v, df_b
 
-    def smooth_unknown_word(self,df_prevs_s,prev_df_v,step_idx,df_v,df_b):
-        # df_excl= df_prevs_s[np.where(df_prevs_s['TAG_i'] not in ['yyRRB','yyQUOT','yyQM','yyLRB','yyEXCL','yyELPS','yyDOT','yyDASH','yyCM','yyCLN'], 1, 0) == 1]
+    def smooth_unknown_word(self, df_prevs_s, step_idx, df_v, df_b):
         df_excl = df_prevs_s[np.where(
-            df_prevs_s['TAG_i']<> 'yyDOT', 1, 0) == 1]
-        if len(df_excl)==0:
-            df_excl= df_v[np.where(df_v['step_idx'] == step_idx - 1, 1, 0) == 1]
-            v_i_s=df_excl.val.min()
-            cur_state_name='NNP'
-            b_i_s=df_excl.loc[[df_excl.val.idxmin()]]['state'].values[0]
+            df_prevs_s['TAG_i'] <> 'yyDOT', 1, 0) == 1]
+        if len(df_excl) == 0:
+            df_excl = df_v[np.where(df_v['step_idx'] == step_idx - 1, 1, 0) == 1]
+            v_i_s = df_excl.val.min()
+            cur_state_name = 'NNP'
+            b_i_s = df_excl.loc[[df_excl.val.idxmin()]]['state'].values[0]
         else:
             df_excl['val_new'] = df_excl['val'] + df_excl['PROB']
-            v_i_s=df_excl.val_new.min()
-            cur_state_name=df_excl.loc[[df_excl.val_new.idxmin()]]['TAG_i'].values[0]
+            v_i_s = df_excl.val_new.min()
+            cur_state_name = df_excl.loc[[df_excl.val_new.idxmin()]]['TAG_i'].values[0]
             b_i_s = df_excl.loc[[df_excl.val_new.idxmin()]]['TAG_i-1'].values[0]
 
         df_v = df_v.append({'step_idx': step_idx, 'state': cur_state_name, 'val': v_i_s}, ignore_index=True)
-        df_b = df_b.append({'step_idx': step_idx, 'state': cur_state_name, 'prev_state': b_i_s},ignore_index=True)
-        return df_v,df_b
+        df_b = df_b.append({'step_idx': step_idx, 'state': cur_state_name, 'prev_state': b_i_s}, ignore_index=True)
+        return df_v, df_b
+
+    # if we want not to use smoothing for unknown words- use this definition instead of 'smooth_unknown_word'
+    def handle_unknown_as_nnp(self, df_prevs_s, step_idx, df_v, df_b):
+        cur_state_name = 'NNP'
+        v_i_s = df_prevs_s.val.min()
+        b_i_s = df_prevs_s.loc[[df_prevs_s.val.idxmin()]].state.values[0]
+        df_v = df_v.append({'step_idx': step_idx, 'state': cur_state_name, 'val': v_i_s}, ignore_index=True)
+        df_b = df_b.append({'step_idx': step_idx, 'state': cur_state_name, 'prev_state': b_i_s},
+                           ignore_index=True)
+        return df_v, df_b

@@ -1,44 +1,29 @@
-import argparse
-import os
+import os.path
+import sys
 
 import pandas as pd
 
+import src.datasets.load_data_sets as ld
 import src.evaluation.evaluation_measures as eval
-from src import datasets as ld
 
-parser = argparse.ArgumentParser()
+model = sys.argv[1]
+test_file = sys.argv[2]
+gold_file= sys.argv[3]
 
-parser.add_argument('--model', type=str, default='baseline',
-                    help='name of model to be used for decoding. use one of "baseline" or "bi-gram"')
+if not os.path.isfile(test_file):
+    raise Exception('No such file {}'.format(test_file))
+if not os.path.isfile(gold_file):
+    raise Exception('No such file {}'.format(gold_file))
 
-parser.add_argument('--test_file', type=str,
-                    default='C:\\Users\\aymann\\PycharmProjects\\maman_12_NLP\\datasets\\heb-pos-small.test',
-                    help='path to training file"')
-parser.add_argument('--gold_file', type=str,
-                    default='C:\\Users\\aymann\\PycharmProjects\\maman_12_NLP\\datasets\\heb-pos-small.gold',
-                    help='path to training file"')
+print "building confusion matrix for NLP model: model={model}, model test_file={test_file},model gold_file={gold_file}".format(
+    model=model, test_file=test_file, gold_file=gold_file)
 
-parser.add_argument('--smoothing', type=str, default='n',
-                    help='specify if to use smoothing in the model. this param is insignificant for baseline model')
+confusion_out_path = os.getcwd()+"\\{}_model.confusion".format(model)
+labals_out_path = os.getcwd()+"\\{}_model.labalidx".format(model)
 
-args = parser.parse_args()
-
-if not os.path.isfile(args.test_file):
-    raise Exception('No such file {}'.format(args.test_file))
-if not os.path.isfile(args.gold_file):
-    raise Exception('No such file {}'.format(args.gold_file))
-
-# args.test_file='C:\\Users\\aymann\\PycharmProjects\\maman_12_NLP\\datasets\\heb-pos.test'
-print "building confusion matrix for NLP model: model={model}, model test_file={test_file},model gold_file={gold_file},smoothing={smoothing}".format(
-    model=args.model, test_file=args.test_file, gold_file=args.gold_file,
-    smoothing=args.smoothing)
-
-confusion_out_path = "C:\\Users\\aymann\\PycharmProjects\\maman_12_NLP\\tests\\confusion_matrix\\{}_model.confusion".format(args.model)
-labals_out_path = "C:\\Users\\aymann\\PycharmProjects\\maman_12_NLP\\tests\\confusion_matrix\\{}_model.labalidx".format(args.model)
-
-test_df = ld.load_gold_train(args.test_file)
+test_df = ld.load_gold_train(test_file)
 test_df.rename(columns={'TAG': 'AUTO_TAG'}, inplace=True)
-gold_df = ld.load_gold_train(args.gold_file)
+gold_df = ld.load_gold_train(gold_file)
 
 labels, confusion, confusion_df = eval.get_confusion_metrix(gold_df=gold_df, test_tagged_df=test_df)
 
